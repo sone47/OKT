@@ -6,7 +6,7 @@ import numpy as np
 import tqdm
 
 from .OKTNet import OKTNet
-from .utils import binary_entropy, compute_auc, compute_accuracy, compute_r2
+from .utils import binary_entropy, compute_auc, compute_accuracy, compute_r2, compute_rmse
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -119,12 +119,13 @@ def test_one_epoch(net, batch_size, q_data, a_data, e_data, it_data, at_data=Non
   r2 = compute_r2(all_target, all_pred)
   auc = compute_auc(all_target, all_pred)
   accuracy = compute_accuracy(all_target, all_pred)
+  rmse = compute_rmse(all_target, all_pred)
 
   if return_it:
     all_it = np.concatenate(it_list, axis=0)
-    return (all_pred, all_target, all_it, mask_list), (loss, r2, auc, accuracy)
+    return (all_pred, all_target, all_it, mask_list), (loss, rmse, r2, auc, accuracy)
   else:
-    return (all_pred, all_target, mask_list), (loss, r2, auc, accuracy)
+    return (all_pred, all_target, mask_list), (loss, rmse, r2, auc, accuracy)
 
 
 class OKT:
@@ -149,7 +150,7 @@ class OKT:
         best_train_auc = train_auc
 
       if test_data is not None:
-        _, (test_loss, test_r2, test_auc, test_accuracy) = self.eval(test_data)
+        _, (_, _, test_r2, test_auc, test_accuracy) = self.eval(test_data)
         print("[Epoch %d] r2: %.6f, auc: %.6f, accuracy: %.6f" % (idx, test_r2, test_auc, test_accuracy))
         scheduler.step()
         if test_auc > best_test_auc:

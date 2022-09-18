@@ -15,9 +15,6 @@ np.random.seed(0)
 if __name__ == '__main__':
   dataset = sys.argv[1] if len(sys.argv) > 1 else 'assist2017'
 
-  if dataset not in ['assist2017', 'assist2012', 'nips2020_1_2']:
-    raise Exception(dataset + ' is not target dataset')
-
   n_at, n_it, n_exercise, n_question = 0, 0, 0, 0
   has_at = True
 
@@ -74,9 +71,9 @@ if __name__ == '__main__':
   data_path = './data/' + dataset_path
   dat = DATA(seqlen=seq_len, separate_char=',', has_at=has_at)
   test_data = dat.load_data(data_path + '/test.txt')
-  model_file_path = '.okt-' + dataset + '.params'
+  model_file_path = 'okt-' + dataset + '.params'
   # k-fold cross validation
-  k, test_r2_sum, test_auc_sum, test_accuracy_sum = 5, .0, .0, .0
+  k, test_rmse_sum, test_r2_sum, test_auc_sum, test_accuracy_sum = 5, .0, .0, .0, .0
   for i in range(k):
     okt = OKT(n_at, n_it, n_exercise, n_question,
           d_e, d_q, d_a, d_at, d_p, d_h, batch_size=batch_size, dropout=dropout)
@@ -89,11 +86,12 @@ if __name__ == '__main__':
     print('fold %d, train auc %f, valid auc %f' % (i, best_train_auc, best_valid_auc))
     # test
     okt.load(model_file_path)
-    _, (_, test_r2, test_auc, test_accuracy) = okt.eval(test_data)
-    print("[fold %d] r2: %.6f, auc: %.6f, accuracy: %.6f" % (i, test_r2, test_auc, test_accuracy))
+    _, (_, test_rmse, test_r2, test_auc, test_accuracy) = okt.eval(test_data)
+    print("[fold %d] rmse: %.6f, r2: %.6f, auc: %.6f, accuracy: %.6f" % (i, test_rmse, test_r2, test_auc, test_accuracy))
+    test_rmse_sum += test_rmse
     test_r2_sum += test_r2
     test_auc_sum += test_auc
     test_accuracy_sum += test_accuracy
   print('%d-fold validation:' % k)
-  print('avg of test data (r2, auc, accuracy): %f, %f, %f' % (
-    test_r2_sum / k, test_auc_sum / k, test_accuracy_sum / k))
+  print('avg of test data (RMSE, r2, auc, accuracy): %f, %f, %f, %f' % (
+    test_rmse_sum / k, test_r2_sum / k, test_auc_sum / k, test_accuracy_sum / k))

@@ -33,6 +33,20 @@ class UKSE(nn.Module):
     return (1 - p) * h + p * h_prime
 
 
+class UKSE_NOT(nn.Module):
+  def __init__(self, d_h):
+    super(UKSE_NOT, self).__init__()
+    self.linear_h = nn.Linear(2 * d_h, d_h)
+    self.linear_p = nn.Linear(2 * d_h, d_h)
+    self.sig = nn.Sigmoid()
+    self.tanh = nn.Tanh()
+
+  def forward(self, h, it):
+    h_prime = self.tanh(self.linear_h(torch.cat((h, it), 1)))
+    p = self.sig(self.linear_p(torch.cat((h, it), 1)))
+    return (1 - p) * h + p * h_prime
+
+
 class KSE(nn.Module):
   def __init__(self, d_h):
     super(KSE, self).__init__()
