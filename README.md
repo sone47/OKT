@@ -9,11 +9,11 @@ ICTAI'2022: Modeling Offline Knowledge Evolution Effect for Online Knowledge Tra
     ```shell
     python prepare_data/prepare_[dataset_name].py
     ```
-    , where `[dataset_name]` can be assist2012, assist2017 and nips2020_1_2.
+    , where `[dataset_name]` can be `assist2012, assist2017 and nips2020_1_2`.
 
 2. Use the model by running
 
     ```shell
-    python main.py [dataset_name]
+    python main.py --dateset [dataset_name] --model [model_name]
     ```
-    , where the optional values of `[dataset_name]` is the same as above, and if you do not specify the dataset it will default to assist2017.
+    , where the optional values of `[dataset_name]` is the same as above, and if you do not specify the dataset it will default to `assist2017`; the optional values of `[model_name]` can be `okt, okt_not, okt_nu, okt_ne`, and if you do not specify the dataset it will default to `okt`.

@@ -6,6 +6,9 @@ import numpy as np
 import tqdm
 
 from .OKTNet import OKTNet
+from .OKTNOTNet import OKTNet as OKTNOTNet
+from .OKTNUNet import OKTNet as OKTNUNet
+from .OKTNENet import OKTNet as OKTNENet
 from .utils import binary_entropy, compute_auc, compute_accuracy, compute_r2, compute_rmse
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -128,11 +131,24 @@ def test_one_epoch(net, batch_size, q_data, a_data, e_data, it_data, at_data=Non
     return (all_pred, all_target, mask_list), (loss, rmse, r2, auc, accuracy)
 
 
+net_dict = {
+  'okt': OKTNet,
+  'okt_not': OKTNOTNet,
+  'okt_nu': OKTNUNet,
+  'okt_ne': OKTNENet
+}
+
 class OKT:
-  def __init__(self, n_at, n_it, n_exercise, n_question, d_e, d_q, d_a, d_at, d_p, d_h, batch_size=64, dropout=0.2):
+  def __init__(self, n_at, n_it, n_exercise, n_question, d_e, d_q, d_a, d_at, d_p, d_h, batch_size=64, dropout=0.2, net_type='okt'):
     super(OKT, self).__init__()
-    self.okt_net = OKTNet(n_question, n_exercise, n_it, n_at, d_e, d_q, d_a, d_at, d_p, d_h,
-                dropout=dropout, device=device).to(device)
+
+    if net_type not in net_dict:
+      raise Exception('Parameter model \'' + net_type + '\' is wrong.')
+
+    net = net_dict[net_type]
+
+    self.okt_net = net(n_question, n_exercise, n_it, n_at, d_e, d_q, d_a, d_at, d_p, d_h,
+                      dropout=dropout, device=device).to(device)
     self.batch_size = batch_size
 
   def train(self, train_data, test_data=None, *, epoch: int, lr=0.002, lr_decay_step=15, lr_decay_rate=0.5,
