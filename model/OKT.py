@@ -21,6 +21,7 @@ def train_one_epoch(net, optimizer, criterion, batch_size, q_data, a_data, e_dat
   n = int(math.ceil(len(e_data) / batch_size))
   shuffled_ind = np.arange(e_data.shape[0])
   np.random.shuffle(shuffled_ind)
+  q_data = q_data[shuffled_ind]
   e_data = e_data[shuffled_ind]
   at_data = at_data[shuffled_ind]
   a_data = a_data[shuffled_ind]
